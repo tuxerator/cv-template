@@ -30,7 +30,7 @@ Copy the [template](https://raw.githubusercontent.com/tsnobip/typst-typographic-
 Import the library :
 
 ```typst
-#import "@preview/typographic-resume:0.1.0": *
+#import "@preview/typographic-resume:0.1.1": *
 ```
 
 Show the root `resume` function :
@@ -113,7 +113,7 @@ Several content functions are available.
 
 Customize the theme by specifying the `theme` parameter and overriding 1 or more keys.
 
-### Function `cv`
+### Function `resume`
 
 | Key                     | Type     | Default               |
 | ----------------------- | -------- | --------------------- |
