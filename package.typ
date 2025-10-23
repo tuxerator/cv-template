@@ -5,11 +5,24 @@
   font-secondary: "Roboto",
   font-tertiary: "Montserrat",
   text-color: rgb("#3f454d"),
-  gutter-size: 4em,
+  primary-color: rgb("#c40003"),
+  gutter-size: 2em,
+  align-gutter: start + top,
   main-width: 6fr,
   aside-width: 3fr,
   profile-picture-width: 55%,
+  space-above: 20pt,
+  align-title: end,
 )
+
+
+#let theme-state = state("theme", default-theme)
+
+#let set-theme(option) = theme-state.update(current => { current + option })
+#let get-theme(option) = {
+  assert(option in theme-state.get(), message: "Option not set.")
+  theme-state.get().at(option)
+}
 
 
 #let resume(
@@ -18,262 +31,334 @@
   profession: "",
   bio: "",
   profile-picture: none,
-  theme: (),
+  theme: (:),
   aside: [],
-  main,
+  body,
 ) = {
-  // Function to pick a key from the theme, or a default if not provided.
-  let th(key, default: none) = {
-    return if key in theme and theme.at(key) != none {
-      theme.at(key)
-    } else if default != none and default in theme and theme.at(default) != none {
-      theme.at(default)
-    } else if default != none {
-      default-theme.at(default)
-    } else {
-      default-theme.at(key)
-    }
-  }
+  theme-state.update(current => {
+    current + (secondary-color: current.primary-color.lighten(60%))
+  })
 
-  set page(
-    margin: (
-      top: th("margin"),
-      bottom: th("margin"),
-      left: th("margin"),
-      right: th("margin"),
-    ),
-  )
+  set-theme(theme)
 
-  // Fix for https://github.com/typst/typst/discussions/2919
-  show heading.where(level: 1): set text(size: th("font-size"))
-  show heading.where(level: 2): set text(size: th("font-size"))
-  show heading.where(level: 3): set text(size: th("font-size"))
+  context {
+    let theme = theme-state.get()
+    set page(
+      margin: (
+        top: theme.margin,
+        bottom: theme.margin,
+        left: theme.margin,
+        right: theme.margin,
+      ),
+    )
 
-  show heading.where(level: 1): set text(font: th("font-tertiary"), weight: "light")
+    // Fix for https://github.com/typst/typst/discussions/2919
+    show heading.where(level: 1): set text(size: theme.font-size)
+    show heading.where(level: 2): set text(size: theme.font-size)
+    show heading.where(level: 3): set text(size: theme.font-size)
 
-  set text(font: th("font"), size: th("font-size"), fill: th("text-color"))
+    show heading.where(level: 1): set text(font: theme.font-tertiary, weight: "light")
 
-  set block(above: 10pt, below: 8pt, spacing: 10pt)
+    set text(font: theme.font, size: theme.font-size, fill: theme.text-color)
 
-  set grid(columns: (th("gutter-size"), 1fr))
+    set block(above: 10pt, below: 8pt, spacing: 10pt)
 
-  grid(
-    columns: (th("aside-width"), th("margin"), th("main-width")),
+    set grid(columns: (theme.gutter-size, 1fr))
 
-    // Aside.
-    {
+    grid(
+      columns: (theme.aside-width, theme.margin, theme.main-width),
+
+      // Aside.
       {
         {
-          show heading: set block(above: 0pt, below: 0pt)
-          show heading: set text(size: 12pt, weight: "regular", font: th("font"), fill: th("text-color"))
-          heading(level: 2, first-name)
+          {
+            show heading: set block(above: 0pt, below: 0pt)
+            show heading: set text(size: 12pt, weight: "regular", font: theme.font, fill: theme.text-color)
+            heading(level: 2, first-name)
+          }
+          {
+            show heading: set block(above: 3pt, below: 0pt)
+            show heading: set text(size: 26pt, weight: "regular", font: theme.font, fill: theme.text-color)
+
+            heading(level: 1, last-name)
+          }
+          {
+            show heading: set block(above: 10pt, below: 0pt)
+            show heading: set text(weight: "light", font: theme.font-tertiary)
+            heading(level: 3, upper(profession))
+          }
+
+          if profile-picture != none {
+            set block(radius: 100%, clip: true, above: 1fr, below: 1fr)
+            set align(center)
+            set image(width: theme.profile-picture-width)
+            profile-picture
+          } else {
+            v(1fr)
+          }
+
+
+          set text(weight: "light", style: "italic", hyphenate: true)
+          set par(leading: 1.0em)
+          bio
         }
-        {
-          show heading: set block(above: 3pt, below: 0pt)
-          show heading: set text(size: 26pt, weight: "regular", font: th("font"), fill: th("text-color"))
 
-          heading(level: 1, last-name)
-        }
-        {
-          show heading: set block(above: 10pt, below: 0pt)
-          show heading: set text(weight: "light", font: th("font-tertiary"))
-          heading(level: 3, upper(profession))
-        }
+        aside
+      },
 
-        if profile-picture != none {
-          set block(radius: 100%, clip: true, above: 1fr, below: 1fr)
-          set align(center)
-          set image(width: th("profile-picture-width"))
-          profile-picture
-        } else {
-          v(1fr)
-        }
+      // Empty space.
+      { },
 
-
-        set text(weight: "light", style: "italic", hyphenate: true)
-        set par(leading: 1.0em)
-        bio
-      }
-
-      aside
-    },
-
-    // Empty space.
-    { },
-
-    // Content.
-    main
-  )
+      // Content.
+      body
+    )
+  }
 }
 
 
 #let section(
-  theme: (),
+  theme: (:),
   title,
   body,
-) = {
-  show heading.where(level: 1): set align(theme.align-title) if "align-title" in theme
-  show heading.where(level: 1): set align(end) if not "align-title" in theme
+) = context {
+  let theme-before = theme-state.get()
 
-  if "space-above" not in theme {
-    v(1fr)
-  } else {
+  theme-state.update(current => {
+    current + theme
+  })
+
+  context {
+    let theme = theme-state.get()
+
+    show heading.where(level: 1): set align(theme.align-title)
+
     v(theme.space-above)
-  }
 
 
-  heading(level: 1, upper(title))
-  {
-    set block(above: 2pt, below: 14pt)
-    line(stroke: 1pt, length: 100%)
+    heading(level: 1, upper(title))
+    {
+      set block(above: 2pt, below: 14pt)
+      line(stroke: 1pt + theme.primary-color, length: 100%)
+    }
+
+    body
   }
-  body
+}
+
+#let timeline-section(theme: (:), title, icon, body) = context {
+  let theme-before = theme-state.get()
+
+
+  theme-state.update(current => {
+    current + theme
+  })
+
+  context {
+    let theme = theme-state.get()
+
+    show heading.where(level: 1): set align(theme.align-title)
+
+    let content = {
+      heading(level: 1, upper(title))
+      {
+        set block(above: 2pt, below: 14pt)
+        line(stroke: 1pt + theme.primary-color, length: 100%)
+      }
+      body
+    }
+
+    block(
+      stroke: (left: 1pt + theme.primary-color),
+      inset: (left: theme.gutter-size),
+      {
+        content
+        place(
+          top + left,
+          dx: -(theme.gutter-size + 10pt),
+          circle(
+            radius: 10pt,
+            fill: theme.primary-color,
+            scale(
+              230%,
+              {
+                set text(size: 5pt, fill: theme.secondary-color)
+                align(center + horizon, box(baseline: -40%, icon))
+              },
+            ),
+          ),
+        )
+      },
+    )
+    theme-state.update(theme-before)
+  }
 }
 
 #let contact-entry(
-  theme: (),
+  theme: (:),
   gutter,
   right,
-) = {
-  set grid(columns: (theme.gutter-size, 1fr)) if "gutter-size" in theme
-  set text(font: theme.font-secondary) if "font-secondary" in theme
-  set text(font: default-theme.font-secondary) if "font-secondary" not in theme
-  set text(size: theme.font-size) if "font-size" in theme
+) = context {
+  let theme-before = theme-state.get()
 
-  grid(
-    {
-      context {
-        set align(center) if not "align-gutter" in theme
-        set align(theme.align-gutter) if "align-gutter" in theme
-        gutter
+  theme-state.update(current => {
+    current + theme
+  })
+
+  context {
+    let theme = theme-state.get()
+
+    set grid(columns: (theme.gutter-size, 1fr))
+    set text(font: theme.font-secondary)
+    set text(size: theme.font-size)
+
+    grid(
+      {
+        set align(theme.align-gutter)
+        text(fill: black, gutter)
+      },
+      {
+        right
       }
-    },
-    {
-      right
-    }
-  )
+    )
+  }
 }
 
-#let language-entry(
-  theme: (),
-  language,
+
+#let tech-level(theme: (:), level) = context {
+  let theme-before = theme-state.get()
+
+  theme-state.update(current => {
+    current + theme
+  })
+
+  context {
+    let theme = theme-state.get()
+
+
+    stack(
+      dir: ltr,
+      spacing: 2pt,
+      ..range(5).map(e => {
+        circle(
+          radius: 4pt,
+          stroke: theme.primary-color,
+          fill: if e < level { theme.primary-color } else { theme.secondary-color },
+        )
+      }),
+    )
+  }
+}
+
+#let tech-entry(
+  theme: (:),
+  tech,
   level,
 ) = {
-  set text(font: theme.font) if "font-secondary" in theme
-  set text(font: default-theme.font-secondary) if "font-secondary" not in theme
-  set text(size: theme.font-size) if "font-size" in theme
-
   stack(
     dir: ltr,
-    language,
+    tech,
     {
       set align(end)
-      level
+      tech-level(level)
     },
   )
 }
 
-#let work-entry(
-  theme: (),
+
+#let language-entry(
+  theme: (:),
+  language,
+  level,
+) = context {
+  let theme-before = theme-state.get()
+
+  theme-state.update(current => {
+    current + theme
+  })
+
+  context {
+    let theme = theme-state.get()
+
+    set text(font: theme.font)
+    set text(size: theme.font-size)
+    stack(
+      dir: ltr,
+      language,
+      {
+        set align(end)
+        level
+      },
+    )
+  }
+}
+
+#let timeline-entry(
+  theme: (:),
   timeframe: "",
   title: "",
   organization: "",
   location: "",
   body,
-) = {
-  set text(size: theme.font-size) if "font-size" in theme
+) = context {
+  let theme-before = theme-state.get()
 
-  if "space-above" not in theme {
-    v(1fr)
-  } else {
-    v(theme.space-above)
-  }
-  {
-    set text(font: theme.font-secondary) if "font-secondary" in theme
-    set text(font: default-theme.font-secondary) if "font-secondary" not in theme
-    set block(above: 0pt, below: 0pt)
-    stack(
-      dir: ltr,
-      spacing: 1fr,
-      stack(
-        spacing: 5pt,
-        context {
-          set text(weight: "light", fill: text.fill.lighten(30%))
-          timeframe
-        },
-        {
-          {
-            set text(weight: "bold")
-            upper(title)
-          }
-          " – "
-          organization
-        },
-      ),
-      context {
-        set align(horizon)
-        set text(weight: "light", fill: text.fill.lighten(30%))
-        location
-      },
-    )
-  }
-  {
-    set block(above: 6pt, below: 8pt)
-    line(stroke: 0.1pt, length: 100%)
-  }
+  theme-state.update(current => {
+    current + theme
+  })
+
   context {
-    set text(fill: text.fill.lighten(30%))
-    set par(leading: 1em)
-    body
-  }
-}
+    let theme = theme-state.get()
 
-#let education-entry(
-  theme: (),
-  timeframe: "",
-  title: "",
-  institution: "",
-  location: "",
-  body,
-) = {
-  set text(size: theme.font-size) if "font-size" in theme
+    set text(size: theme.font-size)
 
-  {
-    set text(font: theme.font-secondary) if "font-secondary" in theme
-    set text(font: default-theme.font-secondary) if "font-secondary" not in theme
-    stack(
-      spacing: 5pt,
+    block(
+      above: theme.space-above,
       {
-        set text(weight: "bold")
-        upper(title)
+        set text(font: theme.font-secondary)
+        show heading: it => {
+          place(
+            left + horizon,
+            dx: -(theme.gutter-size + 3pt),
+            circle(radius: 3pt, stroke: theme.primary-color, fill: theme.primary-color),
+          )
+          text(font: theme.font-secondary, size: theme.font-size, it.body)
+        }
+        stack(
+          dir: ltr,
+          spacing: 1fr,
+          stack(
+            spacing: 5pt,
+            {
+              set text(weight: "light", fill: text.fill.lighten(30%))
+              timeframe
+            },
+            {
+              {
+                set text(weight: "bold")
+                heading([
+                  *#upper(title)* -- #organization
+                ])
+              }
+            },
+          ),
+          {
+            set align(horizon)
+            set text(weight: "light", fill: text.fill.lighten(30%))
+            location
+          },
+        )
       },
-      institution,
     )
-
     {
       set block(above: 6pt, below: 8pt)
       line(stroke: 0.1pt, length: 100%)
     }
-  }
+    {
+      set text(fill: text.fill.lighten(30%))
+      set par(leading: 1em)
+      body
+    }
 
-
-  context {
-    set text(weight: "light", fill: text.fill.lighten(30%))
-    stack(
-      spacing: 8pt,
-      {
-        set text(font: theme.font) if "font" in theme
-        body
-      },
-      {
-        set text(font: theme.font-secondary) if "font-secondary" in theme
-        set text(font: default-theme.font-secondary) if "font-secondary" not in theme
-        timeframe
-      },
-    )
+    theme-state.update(theme-before)
   }
 }
-
-#let github-icon = image("images/github-brands.svg")
-#let phone-icon = image("images/phone-solid.svg")
-#let email-icon = image("images/envelope-solid.svg")

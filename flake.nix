@@ -43,6 +43,9 @@
           fontPaths = [
             # Add paths to fonts here
             "${pkgs.roboto}/share/fonts/truetype"
+            "${pkgs.font-awesome}/share/fonts/opentype"
+            "${pkgs.nerd-fonts.symbols-only}/share/fonts/opentype"
+            "${pkgs.nerd-fonts.symbols-only}/share/fonts/truetype"
           ];
 
           virtualPaths = [
