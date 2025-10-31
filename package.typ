@@ -36,10 +36,13 @@
   body,
 ) = {
   theme-state.update(current => {
-    current + (secondary-color: current.primary-color.lighten(60%))
+    current + theme
   })
-
-  set-theme(theme)
+  theme-state.update(current => {
+    if "secondary-color" not in current {
+      current + (secondary-color: current.primary-color.lighten(60%))
+    } else { current }
+  })
 
   context {
     let theme = theme-state.get()
