@@ -14,7 +14,7 @@
   profession: "Software Engineer",
   bio: [
     Experienced software engineer with a passion for developing innovative programs that expedite the efficiency and effectiveness of organizational success.],
-  profile-picture: image("../images/profile_pic_example.jpg"),
+  profile-picture: image(fit: "contain", "../images/profile_pic_example.jpg"),
   aside: {
     section(
       "Contact",
@@ -37,30 +37,16 @@
     )
 
     section(
-      "Main public contributions",
+      "Projects and Contributions",
       {
         set text(font: "Roboto", size: 8pt)
         stack(
           spacing: 8pt,
-          link(
-            "https://github.com/tsnobip/typst-typographic-resume",
-            "tsnobip/typst-typographic-resume",
-          ),
-          link(
-            "https://github.com/typst/typst",
-            "typst/typst",
-          ),
-          link(
-            "https://github.com/rescript-lang/rescript",
-            "rescript-lang/rescript",
-          ),
-          link(
-            "https://github.com/pauldupont/devops-toolkit",
-            "pauldupont/devops-toolkit",
-          ),
-          link(
-            "https://github.com/pauldupont/real-time-chat-app",
-            "pauldupont/real-time-chat-app",
+          tech-entry(link("https://github.com/tuxerator/burp", "tuxerator/burp"), "Bachelor Thesis"),
+          tech-entry(link("https://github.com/Maximkaaa/galileo/pull/86", "Maximkaaa/galileo"), "fixed a small bug"),
+          tech-entry(
+            link("https://github.com/tuxerator/software-project-hammerzon", "tuxerator/hammerzon"),
+            "small web store",
           ),
         )
       },
@@ -72,8 +58,8 @@
         set text(font: "Roboto", size: 8pt)
         stack(
           spacing: 8pt,
-          tech-entry("JavaScript", 0),
-          tech-entry("ReScript", 3),
+          tech-entry("JavaScript", "It's JavaScript what do you expect"),
+          tech-entry("ReScript", tech-level(3)),
           tech-entry("React", 5),
           tech-entry("Node.js", 4),
           tech-entry("Django", 2),

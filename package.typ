@@ -262,15 +262,25 @@
   theme: (:),
   tech,
   description,
-) = {
-  stack(
-    dir: ltr,
-    tech,
-    {
-      set align(end)
-      description
-    },
-  )
+) = context {
+  let theme-before = theme-state.get()
+
+  theme-state.update(current => {
+    current + theme
+  })
+  context {
+    let theme = theme-state.get()
+
+    stack(
+      dir: ltr,
+      tech,
+      {
+        set align(end)
+        set text(fill: theme.secondary-color)
+        description
+      },
+    )
+  }
 }
 
 
