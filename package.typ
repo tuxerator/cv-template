@@ -93,7 +93,15 @@
 
           if profile-picture != none {
             set align(center)
-            circle(width: theme.profile-picture-width, profile-picture)
+
+            block(
+              width: theme.profile-picture-width,
+              above: 1fr,
+              below: 1fr,
+              layout(size => {
+                box(width: size.width, height: size.width, radius: 100%, clip: true, profile-picture)
+              }),
+            )
           } else {
             v(1fr)
           }
