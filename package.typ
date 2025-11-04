@@ -92,10 +92,8 @@
           }
 
           if profile-picture != none {
-            set block(radius: 100%, clip: true, above: 1fr, below: 1fr)
             set align(center)
-            set image(width: theme.profile-picture-width)
-            profile-picture
+            circle(width: theme.profile-picture-width, profile-picture)
           } else {
             v(1fr)
           }
@@ -255,14 +253,14 @@
 #let tech-entry(
   theme: (:),
   tech,
-  level,
+  description,
 ) = {
   stack(
     dir: ltr,
     tech,
     {
       set align(end)
-      tech-level(level)
+      description
     },
   )
 }
