@@ -276,7 +276,7 @@
       tech,
       {
         set align(end)
-        set text(fill: theme.secondary-color)
+        set text(fill: theme.primary-color)
         description
       },
     )

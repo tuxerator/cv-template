@@ -7,7 +7,7 @@
   theme: (
     gutter-size: 4em,
     space-above: 20pt,
-    primary-color: blue,
+    primary-color: yellow,
   ),
   first-name: "Paul",
   last-name: "Dupont",
