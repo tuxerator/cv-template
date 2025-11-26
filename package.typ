@@ -305,6 +305,7 @@
       language,
       {
         set align(end)
+        set text(fill: theme.primary-color)
         level
       },
     )
