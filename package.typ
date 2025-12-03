@@ -62,11 +62,14 @@
 
     show heading.where(level: 1): set text(font: theme.font-tertiary, weight: "light")
 
+    show link: it => { underline(it, offset: 1pt) }
+
     set text(font: theme.font, size: theme.font-size, fill: theme.text-color)
 
     set block(above: 10pt, below: 8pt, spacing: 10pt)
 
     set grid(columns: (theme.gutter-size, 1fr))
+
 
     grid(
       columns: (theme.aside-width, theme.margin, theme.main-width),
